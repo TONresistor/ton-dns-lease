@@ -1,0 +1,75 @@
+// DNS Rent Smart Contracts - TL-B Schema
+// ========================================
+
+// ===== Listing Storage =====
+// Main cell:
+//   marketplace_addr:MsgAddressInt
+//   nft_address:MsgAddressInt
+//   owner_address:MsgAddressInt
+//   state:uint8
+//   nft_received:Bool
+//   rental_ref:^RentalData
+//
+// RentalData:
+//   renter_address:(Maybe MsgAddressInt)
+//   rental_price:Coins
+//   rental_duration:uint32
+//   rental_end_time:uint32
+//   renewal_allowed:Bool
+
+// ===== Marketplace Storage =====
+//
+// marketplace_storage$_
+//   owner_address:MsgAddressInt
+//   listing_code:^Cell
+//   next_listing_index:uint64
+// = MarketplaceStorage;
+
+// ===== Inbound Messages - Listing =====
+
+// rent$52454e54 query_id:uint64 = InternalMsgBody;
+// (payment amount must cover rental_price + gas)
+
+// change_record$4368526b query_id:uint64 record_key:uint256 record_value:(Maybe ^Cell) = InternalMsgBody;
+
+// claim_back$436c4261 query_id:uint64 = InternalMsgBody;
+
+// delist$44654c73 query_id:uint64 = InternalMsgBody;
+
+// renew$52456e77 query_id:uint64 = InternalMsgBody;
+// (payment amount must cover rental_price)
+
+// stop_renewal$53745270 = InternalMsgBody;
+// (no body fields — owner disables renewals)
+
+// relist$52654c73 query_id:uint64 = InternalMsgBody;
+// (owner re-lists after CLOSED state, transitions to AWAITING_NFT)
+
+// withdraw_excess$57746864 = InternalMsgBody;
+// (owner withdraws excess funds)
+
+// ===== Inbound Messages - Marketplace =====
+
+// create_listing via ownership_assigned:
+//   The marketplace receives an NFT transfer (ownership_assigned) with
+//   forward_payload containing: rental_price:Coins rental_duration:uint32
+
+// emergency_return$456d5274 query_id:uint64
+//   nft_address:MsgAddressInt
+//   return_to:MsgAddressInt
+// = InternalMsgBody;
+
+// ===== Standard NFT Messages =====
+
+// transfer#5fcc3d14 query_id:uint64 new_owner:MsgAddress
+//   response_destination:MsgAddress custom_payload:(Maybe ^Cell)
+//   forward_amount:(VarUInteger 16) forward_payload:(Either Cell ^Cell)
+// = InternalMsgBody;
+
+// ownership_assigned#05138d91 query_id:uint64 prev_owner:MsgAddress
+//   forward_payload:(Either Cell ^Cell)
+// = InternalMsgBody;
+
+// change_dns_record#4eb1f0f9 query_id:uint64 record_key:uint256
+//   record_value:(Maybe ^Cell)
+// = InternalMsgBody;
